@@ -3,7 +3,7 @@
 #include "Image_Class.h"
 
 using namespace std;
-void Revert(Image&img){
+void Invert(Image&img){
     for(int i = 0; i < img.width ; i++){
         for(int j = 0; j < img.height; j++){
             for(int k =0; k < 3; k++){
@@ -86,7 +86,7 @@ int main()
     int num;
     cin >> num;
     if(num == 3){
-        Revert(img);
+        Invert(img);
     }
     else if (num == 9) {
         char color;
