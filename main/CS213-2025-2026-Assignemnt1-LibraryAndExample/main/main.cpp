@@ -7,6 +7,146 @@
 
 using namespace std;
 
+// For take th image in the main by karim
+Image LoadImageFromUser(){
+    string filename;
+    cout << "Enter your image name *with extension* : \n";
+    cin >> filename;
+    return Image (filename);
+}
+
+// to save in the main by karim
+void SaveTheEdit(Image&img){
+    string output_filename;
+    cout << "\nEnter the desired name for the new image (e.g., inverted_image.png).\n";
+    cout << "Supported extensions are: .jpg, .jpeg, .png, .bmp, .tga: ";
+    cin >> output_filename;
+    img.saveImage(output_filename);
+
+}
+
+// this the 3rd filter by karim
+void InvertTheImage(Image&img){
+    for(int i = 0; i < img.width ; i++){
+        for(int j = 0; j < img.height; j++){
+            for(int k = 0; k < 3; k++){
+                img(i,j,k) = 255 - img(i,j,k);
+            }
+        }
+    }
+
+}
+
+/* this list for taking the color of frame
+this will work only when the Adding frame is called
+by karim
+*/
+char TakeFrameColorFromUser(){
+    char color;
+    cout << "\nPlease choose a color for the frame:\n";
+    cout << "Enter 'W' for White\n";
+    cout << "Enter 'B' for Black\n";
+    cout << "Enter 'R' for Red\n";
+    cout << "Enter 'G' for Green\n";
+    cout << "Enter 'U' for Blue\n";
+    cout << "Your choice: ";
+    cin >> color;
+    return color;
+
+}
+
+// this the 9th frame by karim
+void AddingFrame(Image&img){
+    char color = TakeFrameColorFromUser();
+    int frame_size = min(img.width,img.height) * 0.05;
+    Image framed_pic(img.width + 2*frame_size, img.height + 2*frame_size);
+    for(int i = 0; i < framed_pic.width; i++){
+        for(int j = 0; j < framed_pic.height; j++){
+            if(i < frame_size || j < frame_size || i >= frame_size + img.width || j >= frame_size + img.height){
+                if(color == 'W'){
+                    framed_pic(j,i,0) = 255;
+                    framed_pic(j,i,1) = 255;
+                    framed_pic(j,i,2) = 255;
+                }
+                else if(color == 'B'){
+                    framed_pic(j,i,0) = 0;
+                    framed_pic(j,i,1) = 0;
+                    framed_pic(j,i,2) = 0;
+                }
+                else if(color == 'R'){
+                    framed_pic(j,i,0) = 255;
+                    framed_pic(j,i,1) = 0;
+                    framed_pic(j,i,2) = 0;
+                }
+                else if(color == 'U'){
+                    framed_pic(j,i,0) = 0;
+                    framed_pic(j,i,1) = 0;
+                    framed_pic(j,i,2) = 255;
+                }
+                else if(color == 'G'){
+                    framed_pic(j,i,0) = 0;
+                    framed_pic(j,i,1) = 255;
+                    framed_pic(j,i,2) = 0;
+                }
+            }
+            else{
+                for(int k = 0; k < 3; k++){
+                    framed_pic(j,i,k) = img(j-frame_size, i-frame_size, k);
+                }
+            }
+        }
+    }
+    img = framed_pic;
+}
+
+// this the 6th frame by karim
+void RotatingImage(Image&img){
+    int degree;
+    cout << "\nPlease choose the degree of rotating\n";
+    cout << "(90,180,270) : \n";
+    cin >> degree;
+    Image rotating_image(img.height, img.width);
+    for(int i = 0; i < img.width; i++){
+        for(int j = 0; j < img.height; j++){
+            for(int k = 0; k < 3; k++){
+                if(degree == 90) rotating_image(j,i,k) = img(i, img.height-j-1, k);
+                else if(degree == 270) rotating_image(j,i,k) = img(img.width-i-1, j, k);
+                else if(degree == 180) rotating_image(j,i,k) = img(img.height-j-1, img.width-i-1, k);
+            }
+        }
+    }
+    img = rotating_image;
+}
+
+// this th 12th frame by karim
+void ApplyBlurFilter(Image&img ,int passes){
+    if(passes == 0) return;
+    Image temp = img;
+    for(int i = 0; i < img.width; i++){
+        for(int j = 0; j < img.height; j++){
+            for(int k = 0; k < 3; k++){
+                if((i == 0 && j == 0) || (i == img.width-1 && j == 0) || (i == 0 && j == img.height-1) || (i == img.width-1 && j == img.height-1)){
+                    temp(j,i,k) = (img(j,i,k) + img(j,i+1,k) + img(j+1,i,k) + img(j+1,i+1,k)) / 4;
+                }
+                else if((j == 0 && i <= img.width-2) || (j == img.height-1 && i <= img.width-2) || (j <= img.height-2 && i == 0) || (j <= img.height-2 && i == img.width-1)){
+                    if(j == 0) temp(j,i,k) = (img(j,i,k) + img(j+1,i+1,k) + img(j+1,i,k) + img(j,i+1,k) + img(j,i-1,k) + img(j+1,i-1,k))/6;
+                    else if(j == img.height-1) temp(j,i,k) = (img(j,i,k) + img(j-1,i,k) + img(j,i+1,k) + img(j,i-1,k) + img(j-1,i-1,k) + img(j-1,i+1,k))/6;
+                    else if(i == 0) temp(j,i,k) = (img(j,i,k) + img(j+1,i,k) + img(j-1,i,k) + img(j,i+1,k) + img(j-1,i+1,k) + img(j+1,i+1,k))/6;
+                    else if(i == img.width-1) temp(j,i,k) = (img(j,i,k) + img(j+1,i,k) + img(j-1,i,k) + img(j,i-1,k) + img(j-1,i-1,k) + img(j+1,i-1,k))/6;
+                }
+                else{
+                    temp(j,i,k) = (img(j,i,k) + img(j+1,i,k) + img(j-1,i,k) + img(j,i+1,k) + img(j,i-1,k) + img(j-1,i+1,k) + img(j+1,i+1,k) + img(j-1,i-1,k) + img(j+1,i-1,k))/9;
+                }
+            }
+        }
+    }
+
+    img = temp;
+    ApplyBlurFilter(img, passes-1);
+}
+
+
+
 enum enMergeType {
 	ResizeLarger = 1,
 	MergeCommon = 2
@@ -165,16 +305,7 @@ void BlackAndWhite(Image& img) {
 }
 
 }
-void Crop(Image&img,int x1 ,  int y1 ,int x2 , int y2) {
-    Image crop(y2 - y1+1,x2-x1+1);
-    for(int i = 0; i <= crop.width; i++) {
-        for(int j = 0; j < crop.height; j++) {
-            for(int k = 0; k < 3; k++) {
-                crop(i,j,k) = img(i+y1,j+x1,k);
-                        }
-                    }
-                }
-            }
+
 void getMergeFilter() {
 	string file1, file2;
 	cout << "Enter first image filename: ";
@@ -206,7 +337,22 @@ void getMergeFilter() {
 	}
 
 }
+void CroppingTheImage(Image& img) {
+    int x1, y1, x2, y2;
+    cout << "\n Enter the points of crop x1 , y1 , x2 then y2: \n";
+    cin >> x1 >> y1 >> x2 >> y2;
+    Image crop(x2 - x1 + 1, y2 - y1 + 1);
 
+    for (int i = 0; i < crop.width; i++) {
+        for (int j = 0; j < crop.height; j++) {
+            for (int k = 0; k < 3; k++) {
+                crop(j, i, k) = img(j + y1, i + x1, k);
+            }
+        }
+    }
+    img = crop;
+}
+// Filter 7
 void getDarkenAndLightenFilter() {
 	string filename;
 	cout << "Pls enter colored image name to turn to darken or lighten image: ";
@@ -232,193 +378,88 @@ void getDarkenAndLightenFilter() {
 	cin >> filename;
 	img.saveImage(filename);
 }
-
-void getInvertFilter() {
-	string filename;
-	cout << "Pls enter colored image name to turn to inverted image: ";
-	cin >> filename;
-
-	Image img(filename);
-
-	for (int i = 0; i < img.width; i++) {
-		for (int j = 0; j < img.height; j++) {
-			for (int k = 0; k < 3; k++) {
-				img(i, j, k) = 255 - img(i, j, k);
-			}
-		}
-	}
-	cout << "Pls enter image name to store new image\n";
-	cout << "and specify extension .jpg, .bmp, .png, .tga: ";
-	cin >> filename;
-	img.saveImage(filename);
-
-}
-
-void getAddFrameFilter() {
-	string filename;
-	cout << "Pls enter colored image name to add frame: ";
-	cin >> filename;
-
-	Image img(filename);
-
-	char color;
-	cout << "\nPlease choose a color for the frame:\n";
-	cout << "Enter 'W' for White\n";
-	cout << "Enter 'B' for Black\n";
-	cout << "Enter 'R' for Red\n";
-	cout << "Enter 'G' for Green\n";
-	cout << "Enter 'U' for Blue\n";
-	cout << "Your choice: ";
-	cin >> color;
-
-	int frame_size = min(img.width, img.height) * 0.05;
-	Image framed_pic(img.width + 2 * frame_size, img.height + 2 * frame_size);
-
-	for (int i = 0; i < framed_pic.width; i++) {
-		for (int j = 0; j < framed_pic.height; j++) {
-			if (i < frame_size || j < frame_size || i >= frame_size + img.width || j >= frame_size + img.height) {
-				if (color == 'W') {
-					framed_pic(j, i, 0) = 255;
-					framed_pic(j, i, 1) = 255;
-					framed_pic(j, i, 2) = 255;
-				}
-				else if (color == 'B') {
-					framed_pic(j, i, 0) = 0;
-					framed_pic(j, i, 1) = 0;
-					framed_pic(j, i, 2) = 0;
-				}
-				else if (color == 'R') {
-					framed_pic(j, i, 0) = 255;
-					framed_pic(j, i, 1) = 0;
-					framed_pic(j, i, 2) = 0;
-				}
-				else if (color == 'U') {
-					framed_pic(j, i, 0) = 0;
-					framed_pic(j, i, 1) = 0;
-					framed_pic(j, i, 2) = 255;
-				}
-				else if (color == 'G') {
-					framed_pic(j, i, 0) = 0;
-					framed_pic(j, i, 1) = 255;
-					framed_pic(j, i, 2) = 0;
-				}
-			}
-			else {
-				for (int k = 0; k < 3; k++) {
-					framed_pic(j, i, k) = img(j - frame_size, i - frame_size, k);
-				}
-			}
-		}
-	}
-	img = framed_pic;
-
-	cout << "Pls enter image name to store new image\n";
-	cout << "and specify extension .jpg, .bmp, .png, .tga: ";
-	cin >> filename;
-	img.saveImage(filename);
+enum FilterType {
+    Grayscale = 1,
+    BlackAndWhite = 2,
+    Invert = 3,
+    Merge = 4,
+    Flip = 5,
+    Rotate = 6,
+    DarkenAndLighten = 7,
+    Crop = 8,
+    Frame = 9,
+    DetectEdges = 10,
+    Resizing = 11,
+    Blur = 12
+};
+void PrintTheList() {
+    cout << "\nEnter a number to choose a filter : \n";
+    cout << "1.Grayscale Image \n";
+    cout << "2.B&W Filter \n";
+    cout << "3.Invert The Image \n";
+    cout << "4.Merge Images \n";
+    cout << "5.Flip Image \n";
+    cout << "6.Rotate The Image With Specific Degree (90,180,270)\n";
+    cout << "7.Darken and Lighten Image \n";
+    cout << "8.Crop Image \n";
+    cout << "9.Adding Frame \n";
+    cout << "10.Detect Image Edges \n";
+    cout << "11.Resizing Image \n";
+    cout << "12.Blur Filter \n";
 
 }
-
-void getRotateFilter() {
-	string filename;
-	cout << "Pls enter colored image name to rotate: ";
-	cin >> filename;
-
-	Image img(filename);
-
-	int degree;
-	cout << "\nPlease choose the degree of rotating\n";
-	cout << "(90,180,270) : \n";
-	cin >> degree;
-
-
-	Image rotating_image(img.height, img.width);
-	for (int i = 0; i < img.width; i++) {
-		for (int j = 0; j < img.height; j++) {
-			for (int k = 0; k < 3; k++) {
-				if (degree == 90) rotating_image(j, i, k) = img(i, img.height - j - 1, k);
-				else if (degree == 270) rotating_image(j, i, k) = img(img.width - i - 1, j, k);
-				else if (degree == 180) rotating_image(j, i, k) = img(img.height - j - 1, img.width - i - 1, k);
-			}
-		}
-	}
-	img = rotating_image;
-
-	cout << "Pls enter image name to store new image\n";
-	cout << "and specify extension .jpg, .bmp, .png, .tga: ";
-	cin >> filename;
-	img.saveImage(filename);
+void ChooseTheFilter(int num){
 
 }
+int main(){
+    Image img = LoadImageFromUser();
+    PrintTheList();
+    int num;
+    cin >> num;
+    switch (num)
+    {
+    case FilterType::Grayscale:
+        getGrayFilter();
+        break;
+    case FilterType::BlackAndWhite:
+        break;
+    case FilterType::Invert:
+        InvertTheImage(img);
+        break;
+    case FilterType::Merge:
+        getMergeFilter();
+        break;
+    case FilterType::Flip:
+        break;
+    case FilterType::Rotate:
+        RotatingImage(img);
+        break;
+    case FilterType::DarkenAndLighten:
+        getDarkenAndLightenFilter();
+        break;
+    case FilterType::Crop:
+        CroppingTheImage(img);
+        break;
+    case FilterType::Frame:
+        AddingFrame(img);
+        break;
+    case FilterType::DetectEdges:
 
-void getBlurFilter(int passes) {
-	string filename;
-	cout << "Pls enter colored image name to blur it: ";
-	cin >> filename;
+        break;
+    case FilterType::Resizing:
+        cout << "The Next Phase haahhah XD ><";
+        break;
+    case FilterType::Blur:
+        ApplyBlurFilter(img,12);
+        break;
+    default:
+        cout << "Invalid filter choice!\n";
+        break;
+    }
 
-	Image img(filename);
-
-	Image temp = img;
-	for (int p = 0; p < passes; p++) {
-		for (int i = 0; i < img.width; i++) {
-			for (int j = 0; j < img.height; j++) {
-				for (int k = 0; k < 3; k++) {
-					if ((i == 0 && j == 0) || (i == img.width - 1 && j == 0) || (i == 0 && j == img.height - 1) || (i == img.width - 1 && j == img.height - 1)) {
-						temp(j, i, k) = (img(j, i, k) + img(j, i + 1, k) + img(j + 1, i, k) + img(j + 1, i + 1, k)) / 4;
-					}
-					else if ((j == 0 && i <= img.width - 2) || (j == img.height - 1 && i <= img.width - 2) || (j <= img.height - 2 && i == 0) || (j <= img.height - 2 && i == img.width - 1)) {
-						if (j == 0) temp(j, i, k) = (img(j, i, k) + img(j + 1, i + 1, k) + img(j + 1, i, k) + img(j, i + 1, k) + img(j, i - 1, k) + img(j + 1, i - 1, k)) / 6;
-						else if (j == img.height - 1) temp(j, i, k) = (img(j, i, k) + img(j - 1, i, k) + img(j, i + 1, k) + img(j, i - 1, k) + img(j - 1, i - 1, k) + img(j - 1, i + 1, k)) / 6;
-						else if (i == 0) temp(j, i, k) = (img(j, i, k) + img(j + 1, i, k) + img(j - 1, i, k) + img(j, i + 1, k) + img(j - 1, i + 1, k) + img(j + 1, i + 1, k)) / 6;
-						else if (i == img.width - 1) temp(j, i, k) = (img(j, i, k) + img(j + 1, i, k) + img(j - 1, i, k) + img(j, i - 1, k) + img(j - 1, i - 1, k) + img(j + 1, i - 1, k)) / 6;
-					}
-					else {
-						temp(j, i, k) = (img(j, i, k) + img(j + 1, i, k) + img(j - 1, i, k) + img(j, i + 1, k) + img(j, i - 1, k) + img(j - 1, i + 1, k) + img(j + 1, i + 1, k) + img(j - 1, i - 1, k) + img(j + 1, i - 1, k)) / 9;
-					}
-				}
-			}
-		}
-	}
-
-	img = temp;
-
-	cout << "Pls enter image name to store new image\n";
-	cout << "and specify extension .jpg, .bmp, .png, .tga: ";
-	cin >> filename;
-	img.saveImage(filename);
-
+    SaveTheEdit(img); //  saves the final result
+    cout << "\nImage processed and saved successfully!\n";
+    cout << "THx for using our app (: , Come again ASAP\n";
 }
 
-
-void waitForKey() {
-	cout << "\nPress Enter to return to the main menu...";
-	cin.ignore(); // clears leftover input (like the '\n')
-	cin.get();    // waits for user to press Enter
-	system("cls"); // clear the console (Windows-specific)
-}
-
-int main() {
-	while (true) {
-		cout << "Choose Filter to apply:\n";
-		cout << "1. Gray Scale\n";
-		cout << "2. Black And White\n";
-		cout << "3. Invert\n";
-		cout << "4. Merge\n";
-		cout << "5. Flip\n";
-		cout << "6. Rotate\n";
-		cout << "7. Darken And Lighten\n";
-		cout << "8. Crop\n";
-		cout << "9. Add Frame\n";
-		cout << "10. Detect Image Edges\n";
-		cout << "11. Resize\n";
-		cout << "12. Blur\n";
-		cout << "13. Exit\n";
-
-		int choice;
-		cin >> choice;
-		showFilter((enShowFilter)choice);
-		waitForKey();
-	}
-
-}
 
