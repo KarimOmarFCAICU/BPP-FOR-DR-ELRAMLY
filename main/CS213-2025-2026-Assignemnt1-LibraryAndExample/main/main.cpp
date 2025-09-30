@@ -129,7 +129,52 @@ void showMergeType(Image img1, Image img2) {
 		break;
 	}
 }
+void Flipping(Image&img,char direction) {
+    Image temp(img.width, img.height);
+    for(int i = 0; i < img.width; i++) {
+        for(int j = 0; j < img.height; j++) {
+            for(int k = 0; k < 3; k++) {
+                if(direction == 'H') {
+                    temp(i,j,k) = img(i, img.width-j, k);
+                }
+                else if(direction == 'V') {
+                    temp(i,j,k) = img(img.height-i, j, k);
+                }
 
+
+            }
+		}
+    }
+    img = temp;
+}
+
+void BlackAndWhite(Image& img) {
+    GrayFilter(img);
+    for(int i = 0; i < img.width; i++){
+        for(int j = 0; j < img.height; j++){
+            for(int k = 0; k < 3; k++){
+                if(img(i,j,k) >= 128){
+                    img(i,j,k) = 255;
+}
+                else if(img(i,j,k) < 128){
+                    img(i,j,k) = 0;
+}
+
+}
+}
+}
+
+}
+void Crop(Image&img,int x1 ,  int y1 ,int x2 , int y2) {
+    Image crop(y2 - y1+1,x2-x1+1);
+    for(int i = 0; i <= crop.width; i++) {
+        for(int j = 0; j < crop.height; j++) {
+            for(int k = 0; k < 3; k++) {
+                crop(i,j,k) = img(i+y1,j+x1,k);
+                        }
+                    }
+                }
+            }
 void getMergeFilter() {
 	string file1, file2;
 	cout << "Enter first image filename: ";
@@ -177,7 +222,7 @@ void getDarkenAndLightenFilter() {
 		for (int y = 0; y < img.height; ++y) {
 			for (int c = 0; c < 3; ++c) {
 				int v = static_cast<int>(img(x, y, c) * factor);
-				// clamp to 0–255
+				// clamp to 0â€“255
 				img(x, y, c) = static_cast<unsigned char>(std::min(255, std::max(0, v)));
 			}
 		}
