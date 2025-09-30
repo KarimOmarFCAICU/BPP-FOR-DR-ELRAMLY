@@ -7,21 +7,6 @@
 
 using namespace std;
 
-enum enShowFilter {
-	GrayScale = 1,
-	BlackAndWhite = 2,
-	Invert = 3,
-	Merge = 4,
-	Flip = 5,
-	Rotate = 6,
-	DarkenAndLighten = 7,
-	Crop = 8,
-	AddFrame = 9,
-	DetectImageEdges = 10,
-	Resize = 11,
-	Blur = 12,
-	Exit = 13
-};
 enum enMergeType {
 	ResizeLarger = 1,
 	MergeCommon = 2
@@ -359,50 +344,6 @@ void getBlurFilter(int passes) {
 
 }
 
-void showFilter(enShowFilter filter) {
-	switch (filter) {
-
-	case BlackAndWhite:
-		//getBlackAndWhiteFilter();
-		break;
-	case Rotate:
-		getRotateFilter();
-		break;
-	case GrayScale:
-		getGrayFilter();
-		break;
-	case Invert:
-		getInvertFilter();
-		break;
-	case Merge:
-		getMergeFilter();
-		break;
-	case Flip:
-		//getFlipFilter();
-		break;
-	case DarkenAndLighten:
-		getDarkenAndLightenFilter();
-		break;
-	case Crop:
-		//getCropFilter();
-		break;
-	case AddFrame:
-		getAddFrameFilter();
-		break;
-	case DetectImageEdges:
-		//getDetectImageEdgesFilter();
-		break;
-	case Resize:
-		//getResizeFilter();
-		break;
-	case Blur:
-		getBlurFilter(12);
-		break;
-	case Exit:
-		exit(0);
-		break;
-	}
-}
 
 void waitForKey() {
 	cout << "\nPress Enter to return to the main menu...";
