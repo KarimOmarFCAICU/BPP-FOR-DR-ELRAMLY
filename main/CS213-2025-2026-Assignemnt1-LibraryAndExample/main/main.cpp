@@ -371,6 +371,41 @@ void getDarkenAndLightenFilter(Image& img) {
     }
 }
 
+void getDetectEdgesFilter(Image& img, int threshold = 30) {
+    int width = img.width;
+    int height = img.height;
+
+    // calculate the intensity difference between neighboring pixels
+
+    for (int x = 0; x < width - 1; ++x) {
+        for (int y = 0; y < height - 1; ++y) {
+
+            // current pixel intensity
+            float intensity = 0.299f * img(x, y, 0) +
+                0.587f * img(x, y, 1) +
+                0.114f * img(x, y, 2);
+
+            // right neighbor
+            float right = 0.299f * img(x + 1, y, 0) +
+                0.587f * img(x + 1, y, 1) +
+                0.114f * img(x + 1, y, 2);
+
+            // bottom neighbor
+            float down = 0.299f * img(x, y + 1, 0) +
+                0.587f * img(x, y + 1, 1) +
+                0.114f * img(x, y + 1, 2);
+
+            float diff = fabs(intensity - right) + fabs(intensity - down); // fabs for absolute value of float
+
+            unsigned char color = (diff > threshold) ? 0 : 255; // black = edge
+
+            for (int c = 0; c < 3; ++c)
+                img(x, y, c) = color;
+        }
+    }
+}
+
+
 void getMainMenu() {
     cout << "\nEnter a number to choose a filter : \n";
     cout << "1.Grayscale Image \n";
@@ -422,7 +457,7 @@ void getFilterFromUser() {
         getAddFrameFilter(img);
         break;
     case enFilterType::DetectEdges:
-        cout << "The Next Phase haahhah XD ><";
+        getDetectEdgesFilter(img);
         break;
     case enFilterType::Resizing:
         cout << "The Next Phase haahhah XD ><";
@@ -441,7 +476,7 @@ void getFilterFromUser() {
 }
 void waitForKey() {
     cout << "\nPress Enter to return to the main menu...";
-    cin.ignore(); // clears leftover input (like the '\n')
+    cin.ignore(); // clears leftover img (like the '\n')
     cin.get();    // waits for user to press Enter
     system("cls"); // clear the console (Windows-specific)
 }
