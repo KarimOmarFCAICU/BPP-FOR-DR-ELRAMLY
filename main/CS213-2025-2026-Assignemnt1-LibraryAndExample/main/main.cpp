@@ -365,7 +365,7 @@ void getDarkenAndLightenFilter(Image& img) {
             for (int c = 0; c < 3; ++c) {
                 int v = static_cast<int>(img(x, y, c) * factor);
                 // clamp to 0–255
-                img(x, y, c) = static_cast<unsigned char>(std::min(255, std::max(0, v)));
+                img(x, y, c) = static_cast<unsigned char>(min(255, max(0, v)));
             }
         }
     }
@@ -405,6 +405,56 @@ void getDetectEdgesFilter(Image& img, int threshold = 30) {
     }
 }
 
+void getResizeFilter(Image& img) {
+    int newWidth, newHeight;
+    cout << "Enter the new width: ";
+    if (!(cin >> newWidth)) return;
+    cout << "Enter the new height: ";
+    if (!(cin >> newHeight)) return;
+
+    if (newWidth <= 0 || newHeight <= 0) {
+        cout << "invalid_numbers\n";
+        return;
+    }
+
+    Image newImage(newWidth, newHeight);
+    const int oldW = img.width;
+    const int oldH = img.height;
+    const int channels = 3;
+
+    float scaleX = (newWidth > 1) ? float(oldW - 1) / float(newWidth - 1) : 0.0f;
+    float scaleY = (newHeight > 1) ? float(oldH - 1) / float(newHeight - 1) : 0.0f;
+
+    for (int j = 0; j < newHeight; ++j) {         // y (row)
+        for (int i = 0; i < newWidth; ++i) {      // x (col)
+            float src_x = i * scaleX;
+            float src_y = j * scaleY;
+
+            int x1 = clamp(int(floor(src_x)), 0, oldW - 1);
+            int y1 = clamp(int(floor(src_y)), 0, oldH - 1);
+            int x2 = min(x1 + 1, oldW - 1);
+            int y2 = min(y1 + 1, oldH - 1);
+
+            float x_diff = src_x - x1;
+            float y_diff = src_y - y1;
+
+            for (int k = 0; k < channels; ++k) {
+                float pA = static_cast<float>(img(x1, y1, k));
+                float pB = static_cast<float>(img(x2, y1, k));
+                float pC = static_cast<float>(img(x1, y2, k));
+                float pD = static_cast<float>(img(x2, y2, k));
+
+                float value = pA * (1 - x_diff) * (1 - y_diff) +
+                    pB * (x_diff) * (1 - y_diff) +
+                    pC * (1 - x_diff) * (y_diff)+
+                    pD * (x_diff) * (y_diff);
+
+                int iv = int(round(value));
+                iv = clamp(iv, 0, 255);
+                newImage(i, j, k) = static_cast<unsigned char>(iv);
+            }
+        }
+    }
 
 void getMainMenu() {
     cout << "\nEnter a number to choose a filter : \n";
@@ -460,7 +510,7 @@ void getFilterFromUser() {
         getDetectEdgesFilter(img);
         break;
     case enFilterType::Resizing:
-        cout << "The Next Phase haahhah XD ><";
+        getResizeFilter(img);
         break;
     case enFilterType::Blur:
         getBlurFilter(img, 12);
