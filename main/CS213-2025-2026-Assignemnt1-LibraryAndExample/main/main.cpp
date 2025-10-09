@@ -323,7 +323,7 @@ void showMergeType(Image img1, Image img2) {
         break;
     }
 }
-
+//this 5th function by abdelrahman
 void getFlipFilter(Image& img, char direction) {
     Image temp(img.width, img.height);
     for (int i = 0; i < img.width; i++) {
@@ -342,7 +342,7 @@ void getFlipFilter(Image& img, char direction) {
     }
     img = temp;
 }
-
+// this 2nd function by abdelrahman
 void getBlackAndWhiteFilter(Image& img) {
 
     getGrayFilter(img);
@@ -393,7 +393,7 @@ void getMergeFilter() {
     }
 
 }
-
+// 8th function by abdelrahman 
 void getCropFilter(Image& img) {
     int x1, y1, x2, y2;
     cout << "\n Enter the points of crop x1 , y1 , x2 then y2: \n";
