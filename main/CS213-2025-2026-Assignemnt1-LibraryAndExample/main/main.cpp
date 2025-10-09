@@ -19,7 +19,8 @@ enum enFilterType {
     Frame = 9,
     DetectEdges = 10,
     Resizing = 11,
-    Blur = 12
+    Blur = 12,
+    PurbleFilter =13
 };
 
 enum enMergeType {
@@ -164,6 +165,61 @@ void getBlurFilter(Image& img, int passes) {
     img = temp;
     getBlurFilter(img, passes - 1);
 }
+// the bonus filter by Karim to Phase#2
+void getPurbleFilter(Image&img){
+    Image purpled(img.height , img.width);
+    double s;
+    cout << "Enter The Strength Of The Filter (0 <= s <= 1) : ";
+    cin >> s;
+    while(true){
+
+        if(cin.fail()){
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max() , '\n');
+            cout << "Invalid input! Please enter a number between 0 and 1.\n";
+            continue;
+        }
+        if( s<0 || s>1 ) {
+            cout << "Error: strength must be between 0 and 1.\n";
+            continue;
+        }
+        break;
+    }
+    double purple[3] = {0.502, 0.0, 0.502};
+    for (int i = 0; i < img.width; i++)
+    {
+        for (int j = 0; j < img.height; j++)
+        {
+            for(int k = 0; k < 3; k++){
+                double base = img(j, i , k) / 255.0;
+                double c;
+                if(base >= 0.5){
+                    c = 1 - 2*(1-base)*(1-purple[k]);
+
+                }
+                else {
+                    c = 2*base*purple[k];
+                }
+                purpled(j , i , k) = c * 255;
+            }
+        }
+
+    }
+    string outfile;
+    cout << "Enter output filename (.jpg/.png/.bmp/.tga): ";
+    cin>>outfile;
+    purpled.saveImage(outfile);
+
+}
+
+
+
+
+
+
+
+
+
 
 // This function related to filter 4 (Merge) that merges the common part of both images
 void getMergeCommon(Image img1, Image img2) {
@@ -364,7 +420,7 @@ void getDarkenAndLightenFilter(Image& img) {
         for (int y = 0; y < img.height; ++y) {
             for (int c = 0; c < 3; ++c) {
                 int v = static_cast<int>(img(x, y, c) * factor);
-                // clamp to 0–255
+                // clamp to 0ï¿½255
                 img(x, y, c) = static_cast<unsigned char>(min(255, max(0, v)));
             }
         }
@@ -454,7 +510,7 @@ void getResizeFilter(Image& img) {
                 newImage(i, j, k) = static_cast<unsigned char>(iv);
             }
         }
-    }
+    } }
 
 void getMainMenu() {
     cout << "\nEnter a number to choose a filter : \n";
@@ -470,6 +526,7 @@ void getMainMenu() {
     cout << "10.Detect Image Edges \n";
     cout << "11.Resizing Image \n";
     cout << "12.Blur Filter \n";
+    cout << "13.Purple Filter \n";
 }
 void getFilterFromUser() {
     int choice;
@@ -514,6 +571,9 @@ void getFilterFromUser() {
         break;
     case enFilterType::Blur:
         getBlurFilter(img, 12);
+        break;
+    case enFilterType::PurbleFilter:
+        getPurbleFilter(img);
         break;
     default:
         cout << "Invalid filter choice!\n";
