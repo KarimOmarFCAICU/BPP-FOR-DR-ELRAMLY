@@ -1,3 +1,7 @@
+// repo link : https://github.com/KarimOmarFCAICU/BPP-FOR-DR-ELRAMLY.git
+// drive link : https://drive.google.com/file/d/1GYOfXMa_VToI4SJIQRW1bs6zivJkEpPN/view?usp=sharing
+// YouTube video link : https://youtu.be/3ucmYTW5RzA
+
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
